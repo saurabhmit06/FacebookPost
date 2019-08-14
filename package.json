@@ -1,0 +1,23 @@
+{
+  "name": "redux-saga-example",
+  "version": "0.0.4",
+  "description": "Source from https://github.com/redux-saga/redux-saga/tree/master/examples/counter",
+  "keywords": [],
+  "main": "index.js",
+  "dependencies": {
+    "axios": "0.19.0",
+    "react": "15.5.3",
+    "react-dom": "15.5.3",
+    "redux": "3.6.0",
+    "redux-saga": "0.15.3"
+  },
+  "devDependencies": {
+    "react-scripts": "1.0.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
