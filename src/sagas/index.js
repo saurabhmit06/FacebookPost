@@ -1,11 +1,25 @@
-import { put, call, takeEvery } from "redux-saga/effects";
-import { getPostList } from "../gateway/gateway";
+import { put, call, takeEvery, all } from "redux-saga/effects";
+import { getPostList, getUserList, getComment } from "../gateway/gateway";
 
-export function* postList() {
+function* postList() {
   var listResponse = yield call(getPostList);
-  yield put({ type: "POST_LIST", payload: listResponse.data });
+  var userList = yield call(getUserList);
+  var commentlistResponse = yield call(getComment, 1);
+
+  yield put({
+    type: "POST_LIST",
+    payload: {
+      postList: listResponse.data,
+      userList: userList.data,
+      commentList: commentlistResponse.data
+    }
+  });
+}
+
+function* getPostSaga() {
+  yield takeEvery("GET_POST_LIST", postList);
 }
 
 export default function* rootSaga() {
-  yield takeEvery("GET_POST_LIST", postList);
+  yield all([getPostSaga()]);
 }

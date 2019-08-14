@@ -1,0 +1,32 @@
+.flexContainer,
+.flexContainerList {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.flexContainer div {
+  background-color: gray;
+  padding: 20px 50px;
+  color: white;
+  flex: 5;
+}
+
+.flexContainer div:first-child {
+  background-color: gray;
+  padding: 20px 50px;
+  color: white;
+  flex: 1;
+  border-bottom: 1px solid gray;
+}
+
+.flexContainerList div {
+  padding: 20px 50px;
+  flex: 5;
+  border-bottom: 1px solid gray;
+}
+
+.flexContainerList div:first-child {
+  padding: 20px 50px;
+  flex: 1;
+  cursor: pointer;
+}

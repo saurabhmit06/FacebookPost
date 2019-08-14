@@ -1,13 +1,22 @@
-export default function counter(state = { postList: [] }, action) {
+export default function counter(
+  state = { postList: [], commentList: [] },
+  action
+) {
   switch (action.type) {
     case "POST_LIST":
       return {
-        postList: [...state.postList]
+        postList: action.payload.postList,
+        commentList: action.payload.commentList,
+        userList: action.payload.userList
       };
-    case "INCREMENT_IF_ODD":
-      return state % 2 !== 0 ? state + 1 : state;
-    case "DECREMENT":
-      return state - 1;
+    case "COMMNET_LIST":
+      return {
+        ...state,
+        selectedComment: state.commentList.filter(
+          item => item.id === action.payload.postId
+        )
+      };
+
     default:
       return state;
   }

@@ -7,6 +7,7 @@ import sagaMonitor from "./sagaMonitor";
 import PostList from "./components/PostList";
 import reducer from "./reducers";
 import rootSaga from "./sagas";
+import "./style.css";
 
 const sagaMiddleware = createSagaMiddleware({ sagaMonitor });
 const store = createStore(reducer, applyMiddleware(sagaMiddleware));
@@ -16,7 +17,7 @@ const action = (type, payload) => store.dispatch({ type, payload });
 
 function render() {
   ReactDOM.render(
-    <PostList action={action} />,
+    <PostList action={action} value={store.getState()} />,
     document.getElementById("root")
   );
 }
