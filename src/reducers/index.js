@@ -1,5 +1,5 @@
 export default function counter(
-  state = { postList: [], commentList: [] },
+  state = { postList: [], commentList: [], selectedComment: [] },
   action
 ) {
   switch (action.type) {
@@ -13,7 +13,7 @@ export default function counter(
       return {
         ...state,
         selectedComment: state.commentList.filter(
-          item => item.id === action.payload.postId
+          item => item.postId === action.payload.postId
         )
       };
 

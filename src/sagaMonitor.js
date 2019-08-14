@@ -1,28 +1,30 @@
-import { is, asEffect } from 'redux-saga/utils';
+import { is, asEffect } from "redux-saga/utils";
 
-const PENDING = 'PENDING';
-const RESOLVED = 'RESOLVED';
-const REJECTED = 'REJECTED';
-const CANCELLED = 'CANCELLED';
+const PENDING = "PENDING";
+const RESOLVED = "RESOLVED";
+const REJECTED = "REJECTED";
+const CANCELLED = "CANCELLED";
 
-const DEFAULT_STYLE = 'color: black';
-const LABEL_STYLE = 'font-weight: bold';
-const EFFECT_TYPE_STYLE = 'color: blue';
-const ERROR_STYLE = 'color: red';
-const CANCEL_STYLE = 'color: #ccc';
+const DEFAULT_STYLE = "color: black";
+const LABEL_STYLE = "font-weight: bold";
+const EFFECT_TYPE_STYLE = "color: blue";
+const ERROR_STYLE = "color: red";
+const CANCEL_STYLE = "color: #ccc";
 
-const IS_BROWSER = typeof window !== 'undefined' && window.document;
+const IS_BROWSER = typeof window !== "undefined" && window.document;
 
-const globalScope = typeof window.document === 'undefined' &&
-  navigator.product === 'ReactNative'
-  ? global
-  : IS_BROWSER ? window : null;
+const globalScope =
+  typeof window.document === "undefined" && navigator.product === "ReactNative"
+    ? global
+    : IS_BROWSER
+    ? window
+    : null;
 
 // `VERBOSE` can be made a setting configured from the outside.
 const VERBOSE = true;
 
 function time() {
-  if (typeof performance !== 'undefined' && performance.now) {
+  if (typeof performance !== "undefined" && performance.now) {
     return performance.now();
   }
   return Date.now();
@@ -33,11 +35,11 @@ const rootEffects = [];
 
 function effectTriggered(desc) {
   if (VERBOSE) {
-    console.log('Saga monitor: effectTriggered:', desc);
+    console.log("Saga monitor: effectTriggered:", desc);
   }
   effectsById[desc.effectId] = Object.assign({}, desc, {
     status: PENDING,
-    start: time(),
+    start: time()
   });
   if (desc.root) {
     rootEffects.push(desc.effectId);
@@ -46,21 +48,21 @@ function effectTriggered(desc) {
 
 function effectResolved(effectId, result) {
   if (VERBOSE) {
-    console.log('Saga monitor: effectResolved:', effectId, result);
+    console.log("Saga monitor: effectResolved:", effectId, result);
   }
   resolveEffect(effectId, result);
 }
 
 function effectRejected(effectId, error) {
   if (VERBOSE) {
-    console.log('Saga monitor: effectRejected:', effectId, error);
+    console.log("Saga monitor: effectRejected:", effectId, error);
   }
   rejectEffect(effectId, error);
 }
 
 function effectCancelled(effectId) {
   if (VERBOSE) {
-    console.log('Saga monitor: effectCancelled:', effectId);
+    console.log("Saga monitor: effectCancelled:", effectId);
   }
   cancelEffect(effectId);
 }
@@ -69,7 +71,7 @@ function computeEffectDur(effect) {
   const now = time();
   Object.assign(effect, {
     end: now,
-    duration: now - effect.start,
+    duration: now - effect.start
   });
 }
 
@@ -78,14 +80,14 @@ function resolveEffect(effectId, result) {
 
   if (is.task(result)) {
     result.done.then(
-      (taskResult) => {
+      taskResult => {
         if (result.isCancelled()) {
           cancelEffect(effectId);
         } else {
           resolveEffect(effectId, taskResult);
         }
       },
-      taskError => rejectEffect(effectId, taskError),
+      taskError => rejectEffect(effectId, taskError)
     );
   } else {
     computeEffectDur(effect);
@@ -134,15 +136,15 @@ function getChildEffects(parentEffectId) {
 // Can be overridden by the `console-group` polyfill.
 // The poor man's groups look nice, too, so whether to use
 // the polyfilled methods or the hand-made ones can be made a preference.
-let groupPrefix = '';
-const GROUP_SHIFT = '   ';
-const GROUP_ARROW = '▼';
+let groupPrefix = "";
+const GROUP_SHIFT = "   ";
+const GROUP_ARROW = "▼";
 
 function consoleGroup(...args) {
   if (console.group) {
     console.group(...args);
   } else {
-    console.log('');
+    console.log("");
     console.log(groupPrefix + GROUP_ARROW, ...args);
     groupPrefix += GROUP_SHIFT;
   }
@@ -154,7 +156,7 @@ function consoleGroupEnd() {
   } else {
     groupPrefix = groupPrefix.substr(
       0,
-      groupPrefix.length - GROUP_SHIFT.length,
+      groupPrefix.length - GROUP_SHIFT.length
     );
   }
 }
@@ -184,59 +186,58 @@ function logSimpleEffect(effect) {
 
 /* eslint-disable no-cond-assign*/
 function getEffectLog(effect) {
-  let data, 
-log;
+  let data, log;
 
   if (effect.root) {
     data = effect.effect;
-    log = getLogPrefix('run', effect);
+    log = getLogPrefix("run", effect);
     log.formatter.addCall(data.saga.name, data.args);
     logResult(effect, log.formatter);
   } else if ((data = asEffect.take(effect.effect))) {
-    log = getLogPrefix('take', effect);
+    log = getLogPrefix("take", effect);
     log.formatter.addValue(data);
     logResult(effect, log.formatter);
   } else if ((data = asEffect.put(effect.effect))) {
-    log = getLogPrefix('put', effect);
+    log = getLogPrefix("put", effect);
     logResult(Object.assign({}, effect, { result: data }), log.formatter);
   } else if ((data = asEffect.call(effect.effect))) {
-    log = getLogPrefix('call', effect);
+    log = getLogPrefix("call", effect);
     log.formatter.addCall(data.fn.name, data.args);
     logResult(effect, log.formatter);
   } else if ((data = asEffect.cps(effect.effect))) {
-    log = getLogPrefix('cps', effect);
+    log = getLogPrefix("cps", effect);
     log.formatter.addCall(data.fn.name, data.args);
     logResult(effect, log.formatter);
   } else if ((data = asEffect.fork(effect.effect))) {
     if (!data.detached) {
-      log = getLogPrefix('fork', effect);
+      log = getLogPrefix("fork", effect);
     } else {
-      log = getLogPrefix('spawn', effect);
+      log = getLogPrefix("spawn", effect);
     }
     log.formatter.addCall(data.fn.name, data.args);
     logResult(effect, log.formatter);
   } else if ((data = asEffect.join(effect.effect))) {
-    log = getLogPrefix('join', effect);
+    log = getLogPrefix("join", effect);
     logResult(effect, log.formatter);
   } else if ((data = asEffect.race(effect.effect))) {
-    log = getLogPrefix('race', effect);
+    log = getLogPrefix("race", effect);
     logResult(effect, log.formatter, true);
   } else if ((data = asEffect.cancel(effect.effect))) {
-    log = getLogPrefix('cancel', effect);
+    log = getLogPrefix("cancel", effect);
     log.formatter.appendData(data.name);
   } else if ((data = asEffect.select(effect.effect))) {
-    log = getLogPrefix('select', effect);
+    log = getLogPrefix("select", effect);
     log.formatter.addCall(data.selector.name, data.args);
     logResult(effect, log.formatter);
   } else if (is.array(effect.effect)) {
-    log = getLogPrefix('parallel', effect);
+    log = getLogPrefix("parallel", effect);
     logResult(effect, log.formatter, true);
   } else if (is.iterator(effect.effect)) {
-    log = getLogPrefix('', effect);
+    log = getLogPrefix("", effect);
     log.formatter.addValue(effect.effect.name);
     logResult(effect, log.formatter, true);
   } else {
-    log = getLogPrefix('unkown', effect);
+    log = getLogPrefix("unkown", effect);
     logResult(effect, log.formatter);
   }
 
@@ -247,8 +248,8 @@ function getLogPrefix(type, effect) {
   const isCancel = effect.status === CANCELLED;
   const isError = effect.status === REJECTED;
 
-  const method = isError ? 'error' : 'log';
-  const winnerInd = effect && effect.winner ? isError ? '✘' : '✓' : '';
+  const method = isError ? "error" : "log";
+  const winnerInd = effect && effect.winner ? (isError ? "✘" : "✓") : "";
 
   const style = s => (isCancel ? CANCEL_STYLE : isError ? ERROR_STYLE : s);
 
@@ -263,38 +264,40 @@ function getLogPrefix(type, effect) {
   if (type) {
     formatter.add(`%c ${type} `, style(EFFECT_TYPE_STYLE));
   }
-  formatter.add('%c', style(DEFAULT_STYLE));
+  formatter.add("%c", style(DEFAULT_STYLE));
 
   return {
     method,
-    formatter,
+    formatter
   };
 }
 
 function argToString(arg) {
-  return typeof arg === 'function'
+  return typeof arg === "function"
     ? `${arg.name}`
-    : typeof arg === 'string' ? `'${arg}'` : arg;
+    : typeof arg === "string"
+    ? `'${arg}'`
+    : arg;
 }
 
 function logResult(
   { status, result, error, duration },
   formatter,
-  ignoreResult,
+  ignoreResult
 ) {
   if (status === RESOLVED && !ignoreResult) {
     if (is.array(result)) {
-      formatter.addValue(' → ');
+      formatter.addValue(" → ");
       formatter.addValue(result);
     } else {
-      formatter.appendData('→', result);
+      formatter.appendData("→", result);
     }
   } else if (status === REJECTED) {
-    formatter.appendData('→ ⚠', error);
+    formatter.appendData("→ ⚠", error);
   } else if (status === PENDING) {
-    formatter.appendData('⌛');
+    formatter.appendData("⌛");
   } else if (status === CANCELLED) {
-    formatter.appendData('→ Cancelled!');
+    formatter.appendData("→ Cancelled!");
   }
   if (status !== PENDING) {
     formatter.appendData(`(${duration.toFixed(2)}ms)`);
@@ -303,10 +306,10 @@ function logResult(
 
 function isPrimitive(val) {
   return (
-    typeof val === 'string' ||
-    typeof val === 'number' ||
-    typeof val === 'boolean' ||
-    typeof val === 'symbol' ||
+    typeof val === "string" ||
+    typeof val === "number" ||
+    typeof val === "boolean" ||
+    typeof val === "symbol" ||
     val === null ||
     val === undefined
   );
@@ -318,9 +321,9 @@ function logFormatter() {
 
   function add(msg, ...args) {
     // Remove the `%c` CSS styling that is not supported by the Node console.
-    if (!IS_BROWSER && typeof msg === 'string') {
+    if (!IS_BROWSER && typeof msg === "string") {
       const prevMsg = msg;
-      msg = msg.replace(/^%c\s*/, '');
+      msg = msg.replace(/^%c\s*/, "");
       if (msg !== prevMsg) {
         // Remove the first argument which is the CSS style string.
         args.shift();
@@ -339,9 +342,9 @@ function logFormatter() {
     } else {
       // The browser console supports `%O`, the Node console does not.
       if (IS_BROWSER) {
-        add('%O', value);
+        add("%O", value);
       } else {
-        add('%s', require('util').inspect(value));
+        add("%s", require("util").inspect(value));
       }
     }
   }
@@ -351,22 +354,22 @@ function logFormatter() {
       add(`${name}()`);
     } else {
       add(name);
-      add('(');
+      add("(");
       args.forEach((arg, i) => {
         addValue(argToString(arg));
-        addValue(i === args.length - 1 ? ')' : ', ');
+        addValue(i === args.length - 1 ? ")" : ", ");
       });
     }
   }
 
   function getLog() {
-    let msgs = [], 
-msgsArgs = [];
+    let msgs = [],
+      msgsArgs = [];
     for (let i = 0; i < logs.length; i++) {
       msgs.push(logs[i].msg);
       msgsArgs = msgsArgs.concat(logs[i].args);
     }
-    return [msgs.join('')].concat(msgsArgs).concat(suffix);
+    return [msgs.join("")].concat(msgsArgs).concat(suffix);
   }
 
   return {
@@ -374,7 +377,7 @@ msgsArgs = [];
     addValue,
     addCall,
     appendData,
-    getLog,
+    getLog
   };
 }
 
@@ -383,12 +386,12 @@ const logSaga = (...topEffects) => {
     topEffects = rootEffects;
   }
   if (!rootEffects.length) {
-    console.log(groupPrefix, 'Saga monitor: No effects to log');
+    console.log(groupPrefix, "Saga monitor: No effects to log");
   }
-  console.log('');
-  console.log('Saga monitor:', Date.now(), new Date().toISOString());
+  console.log("");
+  console.log("Saga monitor:", Date.now(), new Date().toISOString());
   logEffects(topEffects);
-  console.log('');
+  console.log("");
 };
 
 // Export the snapshot-logging function to run from the browser console or extensions.
@@ -405,5 +408,5 @@ export default {
   effectResolved,
   effectRejected,
   effectCancelled,
-  actionDispatched: () => {},
+  actionDispatched: () => {}
 };

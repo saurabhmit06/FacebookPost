@@ -1,31 +1,30 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component, PropTypes } from "react";
 
-const Counter = ({
-  value,
-  onIncrement,
-  onIncrementAsync,
-  onDecrement,
-  onIncrementIfOdd,
-}) => (
-  <p>
-    Clicked: {value} times
-    {' '}
-    <button onClick={onIncrement}>
-      +
-    </button>
-    {' '}
-    <button onClick={onDecrement}>
-      -
-    </button>
-    {' '}
-    <button onClick={onIncrementIfOdd}>
-      Increment if odd
-    </button>
-    {' '}
-    <button onClick={onIncrementAsync}>
-      Increment async
-    </button>
-  </p>
+const Counter = ({ value, handleRowClick }) => (
+  <div>
+    <div className="flexContainer title">
+      <div>ID</div>
+      <div>Title</div>
+      <div>Posted By</div>
+    </div>
+    <div>
+      {value.postList.map(item => {
+        return (
+          <div className="flexContainerList">
+            <div
+              onClick={() => {
+                handleRowClick(item);
+              }}
+            >
+              {item.id}
+            </div>
+            <div>{item.title}</div>
+            <div>{item.userId}</div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
 );
 
 Counter.propTypes = {
@@ -33,7 +32,7 @@ Counter.propTypes = {
   onIncrement: PropTypes.func.isRequired,
   onDecrement: PropTypes.func.isRequired,
   onIncrementAsync: PropTypes.func.isRequired,
-  onIncrementIfOdd: PropTypes.func.isRequired,
+  onIncrementIfOdd: PropTypes.func.isRequired
 };
 
 export default Counter;
